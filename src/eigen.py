@@ -23,7 +23,6 @@ def build_2d_hamiltonian(N=20, potential='well'):
 	
 	dx = 1. / float(N) # grid spacing, can be arbitrary
 	inv_dx2 = float(N * N) # 1/dx^2
-	#H = np.zeros((N*N, N*N), dtype=np.float64)
 	H = lil_matrix((N*N, N*N), dtype=np.float64)
 
 	# Helper function to map (i,j) -> linear index
@@ -50,16 +49,16 @@ def build_2d_hamiltonian(N=20, potential='well'):
 		for j in range(N):
 			row = idx(i,j)
 			# Potential
-			H[row, row] = -4. * inv_dx2 + V(i,j) # "Kinetic" ~ -4/dx^2 in 2D FD
+			H[row, row] = 4. * inv_dx2 + V(i,j) # "Kinetic" ~ -4/dx^2 in 2D FD
 			# Neighbors (assuming no boundary conditions or Dirichlet)
 			if i > 0: # up
-				H[row, idx(i-1, j)] = inv_dx2
+				H[row, idx(i-1, j)] = -inv_dx2
 			if i < N-1: # down
-				H[row, idx(i+1, j)] = inv_dx2
+				H[row, idx(i+1, j)] = -inv_dx2
 			if j > 0: # left
-				H[row, idx(i, j-1)] = inv_dx2
+				H[row, idx(i, j-1)] = -inv_dx2
 			if j < N-1: # right
-				H[row, idx(i, j+1)] = inv_dx2
+				H[row, idx(i, j+1)] = -inv_dx2
 				
 	return H.tocsr() # Compressed Sparse Row format
 	
@@ -86,17 +85,8 @@ def solve_eigen(N=20, potential='well', n_eigs=None):
 
 	H = build_2d_hamiltonian(N, potential)
 	# Solve entire spectrum (careful for large N)
-	#vals, vecs = eigh(H)
-	vals, vecs = eigsh(H, k=n_eigs, which='SM')
+	vals, vecs = eigsh(H, k=n_eigs, which='SM') # smallest
 	return vals, vecs
-    # Sort
-	#idx_sorted = np.argsort(vals)
-	#vals_sorted = vals[idx_sorted]
-	#vecs_sorted = vecs[:, idx_sorted]
-	#if n_eigs is None:
-    #   return vals_sorted, vecs_sorted
-	#else:
-    #   return vals_sorted[:n_eigs], vecs_sorted[:, :n_eigs]
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
