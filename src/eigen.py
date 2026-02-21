@@ -134,4 +134,4 @@ if __name__ == '__main__':
     
     print(f"\nLowest {len(vals)} eigenvalues:", vals)
 
-    np.savetxt(f'eigs_N{N}.txt', vals)
+    np.savetxt(f'eigs_N{args.N}.txt', vals)
