@@ -134,6 +134,4 @@ if __name__ == '__main__':
     
     print(f"\nLowest {len(vals)} eigenvalues:", vals)
 
-    # Example local test
-	#vals, vecs = solve_eigen(N=10, potential='well', n_eigs=5)
-	#print("Lowest 5 eigenvalues:", vals)
+    np.savetxt(f'eigs_N{N}.txt', vals)
