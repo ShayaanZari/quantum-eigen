@@ -1,5 +1,4 @@
 import numpy as np
-from scipy.linalg import eigh
 from scipy.sparse import lil_matrix
 from scipy.sparse.linalg import eigsh
 import argparse
@@ -62,6 +61,11 @@ def build_2d_hamiltonian(N=20, potential='well'):
 				
 	return H.tocsr() # Compressed Sparse Row format
 	
+def get_density(vecs):
+	N = np.sqrt(len(vecs)).astype(int)
+	psi_ground = vecs[:, 0].reshape((N, N))
+	return np.abs(psi_ground)**2
+
 def solve_eigen(N=20, potential='well', n_eigs=None):
 	"""
 	Build a 2D Hamiltonian and solve for the lowest n_eigs eigenvalues.
@@ -110,6 +114,7 @@ if __name__ == '__main__':
         "--out", type=str, default=None,
         help="location to save results -- default: ./eigs_N{N}.txt"
     )
+    parser.add_argument('--prob', action='store_true', help='Save probability density of ground state')
 
     args = parser.parse_args()
 	
@@ -130,6 +135,7 @@ if __name__ == '__main__':
 
     print(f"solving 2D hamiltonian with N={args.N}, and potential={args.potential}")
     vals, vecs = solve_eigen(N=args.N, potential=args.potential, n_eigs=args.n_eigs)
-    print(f"\nLowest {len(vals)} eigenvalues:", vals)
     np.savetxt(f'{args.out}', vals)
-    print(f"Saved to output file: {args.out}")
+    print(f"Saved lowest {len(vals)} eigenvalues to output file: {args.out}")
+    if args.prob:
+        np.savetxt(f'density_N{args.N}_{args.potential}.txt', get_density(vecs))
